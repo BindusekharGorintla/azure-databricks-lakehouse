@@ -1,17 +1,6 @@
-"""
-Bronze Layer - Raw rx_claims Ingestion
-====================================
-Ingests raw EDI 837 institutional rx_claims from landing zone to Delta Bronze layer.
-
-Key Principles:
-- Append-only, never update Bronze
-- Schema-on-read with mergeSchema for flexibility  
-- Add metadata columns for lineage and debugging
-- No business logic or transformations
-
-Author: Harsha Morram
-Pattern: Medallion Architecture - Bronze Layer
-"""
+# Bronze Layer - Raw rx_claims Ingestion
+# ====================================
+# Ingests raw rx_claims from landing zone to Delta Bronze layer.
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp, input_file_name, lit
@@ -28,7 +17,7 @@ spark = SparkSession.builder \
 # Configuration - typically from ADF parameters or config file
 SOURCE_PATH = "/mnt/landing/rx_claims/raw/*.csv"
 BRONZE_PATH = "/mnt/bronze/healthcare/rx_claims"
-SOURCE_SYSTEM = "EDI_837_SFTP"
+SOURCE_SYSTEM = "RX_CLAIMS"
 CHECKPOINT_PATH = "/mnt/checkpoints/bronze_rx_claims"
 
 def ingest_rx_claims_to_bronze():
@@ -151,38 +140,3 @@ if __name__ == "__main__":
     
     finally:
         spark.stop()
-
-
-"""
-PRODUCTION CONSIDERATIONS:
-
-1. Error Handling:
-   - Log failures to monitoring table (e.g., bronze_ingestion_log)
-   - Send alerts via ADF webhook to Teams/email
-   - Implement retry logic for transient failures
-
-2. Performance:
-   - For large files (>1GB), consider using Auto Loader instead of spark.read
-   - Partition Bronze by ingestion_date (date part of ingestion_timestamp)
-   - Use Photon runtime for faster parsing
-
-3. Security:
-   - Source path should reference Azure Key Vault for storage credentials
-   - Unity Catalog permissions: bronze schema = read/write for data engineers only
-   - Add row-level security if Bronze contains PII/PHI
-
-4. Schema Evolution:
-   - Monitor schema changes via Delta table history
-   - Alert on unexpected new columns (could indicate data quality issue)
-   - Document schema changes in Confluence/wiki
-
-5. Cost Optimization:
-   - Set retention policy on Bronze (e.g., 90 days if Silver is trusted source)
-   - Use lifecycle policies to move old partitions to Archive storage
-   - Optimize on schedule: OPTIMIZE bronze.rx_claims ZORDER BY (claim_id)
-
-6. Testing:
-   - Unit test: Mock source files with known schemas
-   - Integration test: End-to-end with sample data
-   - Data quality test: Validate metadata columns populated correctly
-"""
