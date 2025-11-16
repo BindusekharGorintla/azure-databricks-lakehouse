@@ -1,17 +1,7 @@
-"""
-Gold Layer - rx_claims Star Schema
-================================
-Transforms Silver validated rx_claims into analytics-ready star schema.
+# Gold Layer - rx_claims Star Schema
+# ==================================
+# Transforms Silver validated rx_claims into analytics-ready star schema.
 
-Dimensional Model:
-- FactClaim: Grain = one row per claim line
-- DimMember: SCD Type 1 (current snapshot)
-- DimProvider: SCD Type 1 (current snapshot)  
-- DimDate: Standard date dimension
-
-Author: Harsha Morram
-Pattern: Medallion Architecture - Gold Layer
-"""
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
@@ -21,6 +11,7 @@ from pyspark.sql.functions import (
 )
 from delta.tables import DeltaTable
 
+# Initialize Spark session
 spark = SparkSession.builder.appName("Gold rx_claims Star Schema").getOrCreate()
 
 # Paths
@@ -251,62 +242,4 @@ def build_aggregation_tables():
     print("Building aggregation tables...")
     
     fact_df = spark.read.format("delta").load(GOLD_FACT_CLAIM_PATH)
-    dim_date_df = spark.read.format("delta").load(GOLD_DIM_DATE_PATH)
-    
-    monthly_rx_claims = fact_df \
-        .join(dim_date_df, fact_df.service_date_key == dim_date_df.date_key) \
-        .groupBy("year", "month", "member_sk") \
-        .agg(
-            count("*").alias("claim_count"),
-            spark_sum("billed_amount").alias("total_billed"),
-            spark_sum("paid_amount").alias("total_paid"),
-            avg("billed_amount").alias("avg_claim_amount")
-        )
-    
-    agg_path = "/mnt/gold/healthcare/agg_monthly_rx_claims"
-    
-    monthly_rx_claims.write \
-        .format("delta") \
-        .mode("overwrite") \
-        .save(agg_path)
-    
-    spark.sql(f"CREATE TABLE IF NOT EXISTS gold.agg_monthly_rx_claims USING DELTA LOCATION '{agg_path}'")
-    
-    print("Aggregation tables created")
-
-
-def optimize_gold_tables():
-    """
-    Run OPTIMIZE and Z-ORDER on Gold tables for query performance.
-    """
-    
-    print("Optimizing Gold tables...")
-    
-    spark.sql(f"OPTIMIZE delta.`{GOLD_FACT_CLAIM_PATH}` ZORDER BY (member_sk, provider_sk, service_date_key)")
-    spark.sql(f"OPTIMIZE delta.`{GOLD_DIM_MEMBER_PATH}`")
-    spark.sql(f"OPTIMIZE delta.`{GOLD_DIM_PROVIDER_PATH}`")
-    
-    print("Gold tables optimized")
-
-
-if __name__ == "__main__":
-    """
-    Execute Gold layer star schema build.
-    """
-    
-    try:
-        build_dim_date()
-        build_dim_member()
-        build_dim_provider()
-        build_fact_claim()
-        build_aggregation_tables()
-        optimize_gold_tables()
-        
-        print("\n✓ Gold layer star schema build completed successfully")
-        
-    except Exception as e:
-        print(f"\n✗ Gold layer build failed: {str(e)}")
-        raise
-    
-    finally:
-        spark.stop()
+    dim_date_df = spark.read.format
