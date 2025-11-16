@@ -16,55 +16,55 @@ trusted datasets ready for dashboards and reporting.
 
 # 2. Ingest Data into the Lakehouse
 
-. Connect to different data sources (databases, APIs, files, streaming).
+.  Connect to different data sources (databases, APIs, files, streaming).
 
-. Use Azure Data Factory or Databricks notebooks to load data into ADLS Gen2.
+.  Use Azure Data Factory or Databricks notebooks to load data into ADLS Gen2.
 
-. Store raw data in a Bronze layer (raw, unprocessed).
+.  Store raw data in a Bronze layer (raw, unprocessed).
 
 # 3. Transform and Clean Data
 
-. Use DBT, Apache Spark in Databricks to process and clean data.
+.  Use DBT, Apache Spark in Databricks to process and clean data.
 
-. Organize data into layers:
+.  Organize data into layers:
    Bronze → raw data
    Silver → cleaned and structured data
    Gold → curated, business‑ready data for analytics
 
-.Apply schema enforcement and data quality checks (e.g., with Databricks DQX if needed).
+.  Apply schema enforcement and data quality checks (e.g., with Databricks DQX if needed).
 
 # 4. Enable Delta Lake
 
-.Store data in Delta Lake format (built on Parquet).
-.Benefits: ACID transactions, versioning, time travel, and scalable queries.
-.This makes your lakehouse reliable and easy to query.
+.  Store data in Delta Lake format (built on Parquet).
+.  Benefits: ACID transactions, versioning, time travel, and scalable queries.
+.  This makes your lakehouse reliable and easy to query.
 
 # 5. Manage and Track Models
 
-. Use MLflow (built into Databricks) to track experiments, models, and metrics.
+.   Use MLflow (built into Databricks) to track experiments, models, and metrics.
 
-.Register models in the MLflow Model Registry for deployment.
+.  Register models in the MLflow Model Registry for deployment.
 
 # 6. Query and Analyze Data
 
-.Use Databricks SQL or Spark SQL to query curated tables.
+.  Use Databricks SQL or Spark SQL to query curated tables.
 
-.Connect BI tools (like Power BI or Tableau) to the Gold layer for dashboards.
+.  Connect BI tools (like Power BI or Tableau) to the Gold layer for dashboards.
 
-.Build reports and visualizations directly from trusted lakehouse tables.
+.  Build reports and visualizations directly from trusted lakehouse tables.
 
 # 7. Secure and Monitor
 
-.Apply role‑based access control (RBAC) in Azure.
+.  Apply role‑based access control (RBAC) in Azure.
 
-.Monitor pipelines with Databricks jobs and logging.
+.  Monitor pipelines with Databricks jobs and logging.
 
-.Set alerts for failures or data quality issues.
+.  Set alerts for failures or data quality issues.
 
 # 8. Scale and Optimize
 
-.Auto‑scale clusters for large workloads.
+.  Auto‑scale clusters for large workloads.
 
-.Use Delta Live Tables for continuous ETL pipelines.
+.  Use Delta Live Tables for continuous ETL pipelines.
 
-.Optimize queries with Z‑ordering and caching.
+.  Optimize queries with Z‑ordering and caching.
