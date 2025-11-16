@@ -94,8 +94,11 @@ Implement incremental refresh in Power BI to reduce query load
 Set table retention policies to auto-delete old files
 
 ## Files in This Pattern
+
 bronze_member_load.py - Raw landing to Delta Bronze
+
 silver_member_load.py - Quality checks and deduplication
+
 gold_member_load.py - Star schema modeling
 
 Optimize performance with advanced techniques (partitioning strategies, caching)
