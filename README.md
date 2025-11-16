@@ -8,8 +8,11 @@ trusted datasets ready for dashboards and reporting.
 ## 1. Explore Azure Databricks
 
 . Provision an Azure Databricks workspace
+
 . Identify core workloads for Azure Databricks
+
 . Use Data Governance tools Unity Catalog and Microsoft Purview
+
 . Describe key concepts of an Azure Databricks solution
 
 ## 2. Perform data analysis with Azure Databricks
