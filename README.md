@@ -5,58 +5,48 @@ Description: This repository provides a hands-on guide to building a data lakeho
 data engineering, manage workflows efficiently, and deliver reliable analytics in the cloud. The project covers everything from ingesting raw data to transforming it into 
 trusted datasets ready for dashboards and reporting.
 
-## 1. Explore Azure Databricks
+### 🛠 Steps to Build a Lakehouse on Azure Databricks
 
-. Provision an Azure Databricks workspace
+# 1. Set up Azure Databricks
+. Create an Azure Databricks workspace in your Azure portal.
+. Configure clusters (compute resources) for running Spark jobs.
+. Make sure you have access to Azure Data Lake Storage (ADLS) for storing raw data.
 
-. Identify core workloads for Azure Databricks
+# 2. Ingest Data into the Lakehouse
+. Connect to different data sources (databases, APIs, files, streaming).
+. Use Azure Data Factory or Databricks notebooks to load data into ADLS Gen2.
+. Store raw data in a Bronze layer (raw, unprocessed).
 
-. Use Data Governance tools Unity Catalog and Microsoft Purview
+# 3. Transform and Clean Data
+. Use DBT, Apache Spark in Databricks to process and clean data.
+. Organize data into layers:
+   Bronze → raw data
+   Silver → cleaned and structured data
+   Gold → curated, business‑ready data for analytics
 
-. Describe key concepts of an Azure Databricks solution
+.Apply schema enforcement and data quality checks (e.g., with Databricks DQX if needed).
 
-## 2. Perform data analysis with Azure Databricks
+# 4. Enable Delta Lake
 
-. Ingest data using Azure Databricks.
+.Store data in Delta Lake format (built on Parquet).
+.Benefits: ACID transactions, versioning, time travel, and scalable queries.
+.This makes your lakehouse reliable and easy to query.
 
-. Using the different data exploration tools in Azure Databricks.
+# 5. Manage and Track Models
+. Use MLflow (built into Databricks) to track experiments, models, and metrics.
+.Register models in the MLflow Model Registry for deployment.
 
-. Analyze data with DataFrame APIs.
+# 6. Query and Analyze Data
+.Use Databricks SQL or Spark SQL to query curated tables.
+.Connect BI tools (like Power BI or Tableau) to the Gold layer for dashboards.
+.Build reports and visualizations directly from trusted lakehouse tables.
 
-## 3. Use Apache Spark in Azure Databricks
+# 7. Secure and Monitor
+.Apply role‑based access control (RBAC) in Azure.
+.Monitor pipelines with Databricks jobs and logging.
+.Set alerts for failures or data quality issues.
 
-. Describe key elements of the Apache Spark architecture.
-
-. Create and configure a Spark cluster.
-
-. Describe use cases for Spark.
-
-. Use Spark to process and analyze data stored in files.
-
-. Use Spark to visualize data.
-
-## 4. Manage data with Delta Lake
-
-. What Delta Lake is
-
-. How to manage ACID transactions using Delta Lake
-
-. How to use schema versioning and time travel in Delta Lake
-
-. How to maintain data integrity with Delta Lake
-
-## 5. Build data pipelines with Delta Live Tables
-
-. Describe Delta Live Tables
-
-. Ingest data into Delta Live Tables
-
-. Use Data Pipelines for real time data processing
-
-## 6. Deploy workloads with Azure Databricks Workflows
-
-What Azure Databricks Workflows are
-
-The key components and benefits of Azure Databricks Workflows
-
-How to deploy workloads using Azure Databricks Workflows
+# 8. Scale and Optimize
+.Auto‑scale clusters for large workloads.
+.Use Delta Live Tables for continuous ETL pipelines.
+.Optimize queries with Z‑ordering and caching.
