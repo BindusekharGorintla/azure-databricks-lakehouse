@@ -1,7 +1,7 @@
-﻿"""
-Gold Layer - Claims Star Schema
+"""
+Gold Layer - rx_claims Star Schema
 ================================
-Transforms Silver validated claims into analytics-ready star schema.
+Transforms Silver validated rx_claims into analytics-ready star schema.
 
 Dimensional Model:
 - FactClaim: Grain = one row per claim line
@@ -21,10 +21,10 @@ from pyspark.sql.functions import (
 )
 from delta.tables import DeltaTable
 
-spark = SparkSession.builder.appName("Gold Claims Star Schema").getOrCreate()
+spark = SparkSession.builder.appName("Gold rx_claims Star Schema").getOrCreate()
 
 # Paths
-SILVER_CLAIMS_PATH = "/mnt/silver/healthcare/claims"
+SILVER_rx_claims_PATH = "/mnt/silver/healthcare/rx_claims"
 SILVER_MEMBERS_PATH = "/mnt/silver/healthcare/members"
 SILVER_PROVIDERS_PATH = "/mnt/silver/healthcare/providers"
 
@@ -162,36 +162,36 @@ def build_dim_provider():
 
 def build_fact_claim():
     """
-    Build FactClaim from Silver claims joined to dimension surrogate keys.
+    Build FactClaim from Silver rx_claims joined to dimension surrogate keys.
     """
     
     print("Building FactClaim...")
     
-    claims_df = spark.read.format("delta").load(SILVER_CLAIMS_PATH)
+    rx_claims_df = spark.read.format("delta").load(SILVER_rx_claims_PATH)
     
     dim_member_df = spark.read.format("delta").load(GOLD_DIM_MEMBER_PATH)
     dim_provider_df = spark.read.format("delta").load(GOLD_DIM_PROVIDER_PATH)
     dim_date_df = spark.read.format("delta").load(GOLD_DIM_DATE_PATH)
     
-    fact_claim = claims_df \
+    fact_claim = rx_claims_df \
         .join(
             dim_member_df.select("member_sk", "member_key"),
-            claims_df.member_id == dim_member_df.member_key,
+            rx_claims_df.member_id == dim_member_df.member_key,
             "left"
         ) \
         .join(
             dim_provider_df.select("provider_sk", "provider_key"),
-            claims_df.provider_id == dim_provider_df.provider_key,
+            rx_claims_df.provider_id == dim_provider_df.provider_key,
             "left"
         ) \
         .join(
             dim_date_df.select(col("date_key").alias("service_date_key"), col("date_value")),
-            claims_df.service_date == dim_date_df.date_value,
+            rx_claims_df.service_date == dim_date_df.date_value,
             "left"
         ) \
         .join(
             dim_date_df.select(col("date_key").alias("received_date_key"), col("date_value").alias("received_date_value")),
-            claims_df.received_date == dim_date_df.received_date_value,
+            rx_claims_df.received_date == dim_date_df.received_date_value,
             "left"
         )
     
@@ -253,7 +253,7 @@ def build_aggregation_tables():
     fact_df = spark.read.format("delta").load(GOLD_FACT_CLAIM_PATH)
     dim_date_df = spark.read.format("delta").load(GOLD_DIM_DATE_PATH)
     
-    monthly_claims = fact_df \
+    monthly_rx_claims = fact_df \
         .join(dim_date_df, fact_df.service_date_key == dim_date_df.date_key) \
         .groupBy("year", "month", "member_sk") \
         .agg(
@@ -263,14 +263,14 @@ def build_aggregation_tables():
             avg("billed_amount").alias("avg_claim_amount")
         )
     
-    agg_path = "/mnt/gold/healthcare/agg_monthly_claims"
+    agg_path = "/mnt/gold/healthcare/agg_monthly_rx_claims"
     
-    monthly_claims.write \
+    monthly_rx_claims.write \
         .format("delta") \
         .mode("overwrite") \
         .save(agg_path)
     
-    spark.sql(f"CREATE TABLE IF NOT EXISTS gold.agg_monthly_claims USING DELTA LOCATION '{agg_path}'")
+    spark.sql(f"CREATE TABLE IF NOT EXISTS gold.agg_monthly_rx_claims USING DELTA LOCATION '{agg_path}'")
     
     print("Aggregation tables created")
 
