@@ -5,17 +5,25 @@ The foundational pattern for Delta Lake lakehouse architectures.
 The medallion architecture organizes data into three layers of increasing quality and structure:
 
 Bronze (Raw): Immutable landing zone for raw data exactly as received from source systems
+
 Silver (Cleansed): Validated, deduplicated, and conformed data ready for consumption
+
 Gold (Curated): Business-level aggregates and star schemas optimized for analytics
 
 ### When to Use This Pattern
+
 ✅ Building a lakehouse on Azure Databricks and Delta Lake
+
 ✅ Need clear separation of raw vs. trusted data
+
 ✅ Want incremental processing with full audit trail
+
 ✅ Preparing data for BI tools (Power BI, Tableau)
+
 ✅ Regulatory environments requiring data lineage
 
 ### Architecture
+
 Source Systems → Bronze (Delta) → Silver (Delta) → Gold (Delta) → BI/Analytics
                     ↓                  ↓                ↓
                 Raw files       Validated data    Star schemas
@@ -23,30 +31,48 @@ Source Systems → Bronze (Delta) → Silver (Delta) → Gold (Delta) → BI/Ana
                 Append-only     Deduplication     SCD tracking
 
 ### Example: Healthcare Claims Processing
+
 This example demonstrates processing EDI 837 institutional claims through the medallion layers.
 
 ## Bronze Layer
+
 Purpose: Land raw claim files exactly as received
+
 Schema: Flexible, schema-on-read with _metadata columns
+
 Operations: Append-only, no transformations
+
 Columns Added: ingestion_timestamp, source_file, source_system
 
 ## Silver Layer
+
 Purpose: Validated, deduplicated claims ready for analysis
+
 Schema: Enforced schema with data quality checks
+
 Operations: MERGE to handle updates, deduplication by claim_id
+
 Quality Checks:
+
 Non-null required fields (claim_id, member_id, provider_id)
+
 Valid date ranges (service_date <= received_date)
+
 Valid procedure codes (CPT/HCPCS)
+
 Duplicate claim detection
+
 ## Gold Layer
 
 Purpose: Star schema for claims analytics
+
 Schema: Dimension and fact tables optimized for queries
+
 Operations: Daily refresh with incremental MERGE
+
 Tables:
-FactClaim - Grain: One row per claim line
+
+member: One row per member line
 DimMember - SCD Type 2 for member demographics
 DimProvider - Current provider master
 DimDate - Standard date dimension
