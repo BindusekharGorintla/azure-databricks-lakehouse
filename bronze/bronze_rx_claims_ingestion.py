@@ -1,7 +1,7 @@
-﻿"""
-Bronze Layer - Raw Claims Ingestion
+"""
+Bronze Layer - Raw rx_claims Ingestion
 ====================================
-Ingests raw EDI 837 institutional claims from landing zone to Delta Bronze layer.
+Ingests raw EDI 837 institutional rx_claims from landing zone to Delta Bronze layer.
 
 Key Principles:
 - Append-only, never update Bronze
@@ -20,18 +20,18 @@ import os
 
 # Initialize Spark with Delta Lake support
 spark = SparkSession.builder \
-    .appName("Bronze Claims Ingestion") \
+    .appName("Bronze rx_claims Ingestion") \
     .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
     .getOrCreate()
 
 # Configuration - typically from ADF parameters or config file
-SOURCE_PATH = "/mnt/landing/claims/raw/*.csv"
-BRONZE_PATH = "/mnt/bronze/healthcare/claims"
+SOURCE_PATH = "/mnt/landing/rx_claims/raw/*.csv"
+BRONZE_PATH = "/mnt/bronze/healthcare/rx_claims"
 SOURCE_SYSTEM = "EDI_837_SFTP"
-CHECKPOINT_PATH = "/mnt/checkpoints/bronze_claims"
+CHECKPOINT_PATH = "/mnt/checkpoints/bronze_rx_claims"
 
-def ingest_claims_to_bronze():
+def ingest_rx_claims_to_bronze():
     """
     Read raw claim files from landing zone and append to Bronze Delta table.
     
@@ -45,7 +45,7 @@ def ingest_claims_to_bronze():
     
     # Read raw CSV files
     # Note: In production, this might be Parquet, JSON, or direct EDI parsing
-    raw_claims_df = spark.read \
+    raw_rx_claims_df = spark.read \
         .option("header", "true") \
         .option("inferSchema", "true") \
         .option("mode", "PERMISSIVE") \
@@ -53,20 +53,20 @@ def ingest_claims_to_bronze():
         .csv(SOURCE_PATH)
     
     # Add metadata columns for lineage and debugging
-    bronze_claims_df = raw_claims_df \
+    bronze_rx_claims_df = raw_rx_claims_df \
         .withColumn("ingestion_timestamp", current_timestamp()) \
         .withColumn("source_file", input_file_name()) \
         .withColumn("source_system", lit(SOURCE_SYSTEM)) \
         .withColumn("bronze_load_id", lit(spark.sparkContext.getConf().get("spark.databricks.job.id", "manual")))
     
-    print(f"Records to ingest: {bronze_claims_df.count()}")
+    print(f"Records to ingest: {bronze_rx_claims_df.count()}")
     
     # Check if Bronze table exists
     if DeltaTable.isDeltaTable(spark, BRONZE_PATH):
         print("Bronze table exists - appending with schema merge")
         
         # Append to existing Delta table with schema evolution
-        bronze_claims_df.write \
+        bronze_rx_claims_df.write \
             .format("delta") \
             .mode("append") \
             .option("mergeSchema", "true") \
@@ -77,7 +77,7 @@ def ingest_claims_to_bronze():
         print("Creating new Bronze Delta table")
         
         # Create new Delta table partitioned by ingestion date
-        bronze_claims_df.write \
+        bronze_rx_claims_df.write \
             .format("delta") \
             .mode("overwrite") \
             .partitionBy("ingestion_timestamp") \
@@ -85,12 +85,12 @@ def ingest_claims_to_bronze():
             .save(BRONZE_PATH)
     
     # Register as table for SQL access
-    spark.sql(f"CREATE TABLE IF NOT EXISTS bronze.claims USING DELTA LOCATION '{BRONZE_PATH}'")
+    spark.sql(f"CREATE TABLE IF NOT EXISTS bronze.rx_claims USING DELTA LOCATION '{BRONZE_PATH}'")
     
     print("Bronze ingestion completed successfully")
     
     # Return row count for monitoring/alerting
-    return bronze_claims_df.count()
+    return bronze_rx_claims_df.count()
 
 
 def validate_bronze_ingestion():
@@ -137,8 +137,8 @@ if __name__ == "__main__":
     """
     
     try:
-        # Ingest claims to Bronze
-        row_count = ingest_claims_to_bronze()
+        # Ingest rx_claims to Bronze
+        row_count = ingest_rx_claims_to_bronze()
         
         # Run basic validation
         validate_bronze_ingestion()
@@ -179,7 +179,7 @@ PRODUCTION CONSIDERATIONS:
 5. Cost Optimization:
    - Set retention policy on Bronze (e.g., 90 days if Silver is trusted source)
    - Use lifecycle policies to move old partitions to Archive storage
-   - Optimize on schedule: OPTIMIZE bronze.claims ZORDER BY (claim_id)
+   - Optimize on schedule: OPTIMIZE bronze.rx_claims ZORDER BY (claim_id)
 
 6. Testing:
    - Unit test: Mock source files with known schemas
