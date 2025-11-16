@@ -8,11 +8,11 @@ trusted datasets ready for dashboards and reporting.
 
 # 1. Set up Azure Databricks 
 
-. Create an Azure Databricks workspace in your Azure portal.
+.  Create an Azure Databricks workspace in your Azure portal.
 
-. Configure clusters (compute resources) for running Spark jobs
-.
-. Make sure you have access to Azure Data Lake Storage (ADLS) for storing raw data.
+.  Configure clusters (compute resources) for running Spark jobs
+
+.  Make sure you have access to Azure Data Lake Storage (ADLS) for storing raw data.
 
 # 2. Ingest Data into the Lakehouse
 
